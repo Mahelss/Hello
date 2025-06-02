@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cute Vibes Pizza</title>
+<!-- Cute font from Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet" />
+<style>
+  /* Base styling */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Neue', cursive, 'Courier New', monospace;
+    background: linear-gradient(135deg, #0b1a4d 40%, #132a6d 90%);
+    color: #d0d8e8;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 2rem;
+    position: relative;
+  }
+
+  /* Black flowers behind content, center stage */
+  .flower-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 0;
+    display: flex;
+    gap: 2rem;
+    opacity: 0.12;
+    user-select: none;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
+  }
+  svg.flower {
+    width: 80px;
+    height: 80px;
+    fill: black;
+    animation: floatUpDown 6s ease-in-out infinite;
+  }
+  svg.flower:nth-child(2) {
+    animation-delay: 3s;
+    width: 100px;
+    height: 100px;
+  }
+
+  @keyframes floatUpDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  /* Right side container */
+  .content {
+    max-width: 520px;
+    padding: 2rem 1.5rem;
+    text-align: right;
+    user-select: none;
+    position: relative;
+    z-index: 10;
+  }
+
+  h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    color: #e0e7ff;
+    text-shadow: 0 0 6px #82aaffaa;
+  }
+
+  .btn-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  button {
+    background-color: #2947a9;
+    border: 2px solid #5a8dcf;
+    color: #d0d8e8;
+    padding: 0.9rem 2.2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(90, 141, 207, 0.7);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-family: 'Comic Neue', cursive, 'Courier New', monospace;
+  }
+  button:hover {
+    background-color: #5a8dcf;
+    color: #ffffff;
+    box-shadow: 0 8px 25px rgba(90, 141, 207, 0.9);
+  }
+  button:disabled {
+    background-color: #2a2f4a;
+    border-color: #444b74;
+    color: #7a7f89;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  #response {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #a8bbff;
+    min-height: 1.6em;
+    margin-bottom: 1.8rem;
+    user-select: text;
+  }
+
+  /* Left fixed image container */
+  .corner-img-container {
+    position: fixed;
+    top: 40px;
+    left: 30px;
+    width: 240px;
+    height: 240px;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 8px 20px rgba(20, 30, 70, 0.9);
+    z-index: 20;
+    background: #152b6d;
+  }
+
+  .corner-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .corner-img-container:hover img {
+    transform: scale(1.05);
+  }
+
+  /* Play button over image */
+  .play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255 255 255 / 0.85);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px #7599ffaa;
+    transition: background-color 0.3s ease;
+    z-index: 21;
+  }
+  .corner-img-container:hover .play-button {
+    background-color: rgba(255 255 255 / 1);
+  }
+
+  /* Play icon */
+  .play-icon {
+    width: 0;
+    height: 0;
+    border-left: 28px solid #2947a9;
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+  }
+
+  /* Pause icon */
+  .pause-icon {
+    width: 28px;
+    height: 28px;
+    position: relative;
+  }
+  .pause-icon::before, .pause-icon::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 8px;
+    height: 28px;
+    background: #2947a9;
+    border-radius: 3px;
+  }
+  .pause-icon::before {
+    left: 0;
+  }
+  .pause-icon::after {
+    right: 0;
+  }
+
+  /* Lyrics bar below the picture */
+  .lyrics-bar {
+    position: fixed;
+    top: 295px; /* below the image (240px + margin) */
+    left: 30px;
+    width: 240px;
+    height: 36px;
+    background: rgba(20, 30, 70, 0.85);
+    color: #a8bbffcc;
+    font-size: 1rem;
+    font-family: 'Comic Neue', cursive, 'Courier New', monospace;
+    border-radius: 0 0 20px 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    box-shadow: 0 0 10px #2947a9cc;
+    user-select: none;
+    z-index: 21;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Sliding lyrics text */
+  .lyrics-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scrollLyrics linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes scrollLyrics {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 720px) {
+    body {
+      justify-content: center;
+      padding-right: 1rem;
+    }
+
+    .corner-img-container {
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      height: 180px;
+      border-radius: 16px;
+    }
+    .lyrics-bar {
+      top: 205px; /* smaller image height + margin */
+      width: 180px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+      height: 30px;
+    }
+
+    .content {
+      max-width: 95vw;
+      text-align: center;
+      padding: 1rem 1rem 3rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .btn-group {
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 0.7rem 1.6rem;
+      font-size: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Black flowers in the middle behind everything -->
+  <div class="flower-container" aria-hidden="true">
+    <svg class="flower" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+      <circle cx="32" cy="32" r="12" />
+      <path d="M32 0 L36 24 L52 8 L40 28 L60 28 L44 44 L56 60 L36 44 L32 64 L28 44 L8 60 L20 44 L4 28 L24 28 L12 8 L28 24 Z" />
+    </svg>
+    <svg class="flower" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+      <circle cx="32" cy="32" r="12" />
+      <path d="M32 0 L36 24 L52 8 L40 28 L60 28 L44 44 L56 60 L36 44 L32 64 L28 44 L8 60 L20 44 L4 28 L24 28 L12 8 L28 24 Z" />
+    </svg>
+  </div>
+
+  <!-- Left fixed image with play button -->
+  <div class="corner-img-container" id="musicToggle" role="button" aria-label="Toggle music playback" tabindex="0">
+    <img src="kendrick.jpg" alt="Kendrick Lamar" />
+    <div class="play-button" id="playBtn" title="Play/Pause music" aria-pressed="false" role="switch">
+      <div class="play-icon" id="icon"></div>
+    </div>
+  </div>
+
+  <!-- Lyrics bar fixed below the image -->
+  <div class="lyrics-bar" aria-label="Song lyrics" tabindex="0" aria-live="polite" aria-atomic="true">
+    <span class="lyrics-text" id="lyricsText">Playing "LOVE" by Kendrick </span>
+  </div>
+
+  <!-- Right side content -->
+  <div class="content">
+    <h1>Wanna have some pizza with me?</h1>
+    <div class="btn-group" role="group" aria-label="Choose yes or no to pizza invitation">
+      <button id="yesBtn" aria-pressed="false">Yes, please! 🍕</button>
+      <button id="noBtn" aria-pressed="false">No, thanks 😿</button>
+    </div>
+    <p id="response" aria-live="polite"></p>
+  </div>
+
+<script>
+  const audioSrc = "Kendrick-love.mp3"; // Your actual audio file path
+  const lyricsText = document.getElementById("lyricsText");
+  const playBtn = document.getElementById("playBtn");
+  const icon = document.getElementById("icon");
+  const musicToggle = document.getElementById("musicToggle");
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn = document.getElementById("noBtn");
+  const response = document.getElementById("response");
+
+  // Create audio element dynamically
+  const audio = new Audio(audioSrc);
+  audio.loop = true;
+
+  // Lyrics lines - approximate timestamps (in seconds)
+  // You can customize or add more lines to sync better
+  const lyricsLines = [
+    { time: 0, text: "Damn, love or lust ,Damn, all of us" },
+    { time: 8, text: "Give me a run for my money, There is nobody, no one to outrun me" },
+    { time: 16, text: "So give me a run for my money ,Sippin' bubbly, feelin’ lovely, livin' lovely, Just love me, I wanna be with you, ayy, I wanna be with, Just love me, just love me, just love" },
+  ];
+
+  let currentLineIndex = 0;
+
+  // Update lyrics sliding speed & text
+  function updateLyrics() {
+    if (!audio.paused) {
+      // Find current line by audio current time
+      for (let i = lyricsLines.length - 1; i >= 0; i--) {
+        if (audio.currentTime >= lyricsLines[i].time) {
+          if (currentLineIndex !== i) {
+            currentLineIndex = i;
+            lyricsText.textContent = lyricsLines[i].text;
+            resetAnimation();
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  // Reset the sliding animation
+  function resetAnimation() {
+    lyricsText.style.animation = "none";
+    // Wait for next frame to reapply animation for restart
+    requestAnimationFrame(() => {
+      lyricsText.style.animation = "";
+    });
+  }
+
+  // Toggle play/pause music and update button icon
+  function toggleMusic() {
+    if (audio.paused) {
+      audio.play();
+      playBtn.setAttribute("aria-pressed", "true");
+      icon.className = "pause-icon";
+    } else {
+      audio.pause();
+      playBtn.setAttribute("aria-pressed", "false");
+      icon.className = "play-icon";
+    }
+  }
+
+  // Play/pause on click or keyboard Enter/Space
+  musicToggle.addEventListener("click", toggleMusic);
+  musicToggle.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleMusic();
+    }
+  });
+
+  // Lyrics update every 500ms while playing
+  audio.addEventListener("play", () => {
+    updateLyrics();
+    lyricsInterval = setInterval(updateLyrics, 500);
+  });
+  audio.addEventListener("pause", () => clearInterval(lyricsInterval));
+  audio.addEventListener("ended", () => clearInterval(lyricsInterval));
+
+  // Buttons click handlers
+  yesBtn.addEventListener("click", () => {
+    response.textContent = "Yay! Pizza party time! 🍕🍕";
+    yesBtn.setAttribute("aria-pressed", "true");
+    noBtn.setAttribute("aria-pressed", "false");
+  });
+
+  noBtn.addEventListener("click", () => {
+    // Cheeky override reply to "Yes" even if they click No
+    response.textContent = "No? Nah, still YES! Pizza can't wait 🍕😏";
+    yesBtn.setAttribute("aria-pressed", "true");
+    noBtn.setAttribute("aria-pressed", "false");
+  });
+
+  // Initially set play icon
+  icon.className = "play-icon";
+  response.textContent = "";
+
+  // Start lyrics animation speed depends on text length - adjust dynamically
+  function adjustAnimationSpeed() {
+    // Longer text scroll slower
+    const length = lyricsText.textContent.length;
+    // Base speed: ~10s per 30 chars, capped between 5s and 15s
+    const duration = Math.min(Math.max((length / 30) * 10, 5), 15);
+    lyricsText.style.animationDuration = `${duration}s`;
+  }
+
+  // Adjust animation whenever lyrics change
+  const lyricsObserver = new MutationObserver(() => {
+    adjustAnimationSpeed();
+  });
+
+  lyricsObserver.observe(lyricsText, { childList: true, characterData: true, subtree: true });
+
+  // Initial speed set
+  adjustAnimationSpeed();
+
+</script>
+
+</body>
+</html>
+
